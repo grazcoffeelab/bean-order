@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>원두 발주 시스템</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;font-size:14px}
+.header{background:#fff;border-bottom:1px solid #e8e8e8;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.logo{font-size:16px;font-weight:500}.logo span{color:#7F77DD}
+.ubadge{font-size:12px;padding:4px 10px;border-radius:8px;background:#e6f1fb;color:#185FA5;cursor:pointer;border:1px solid #b5d4f4}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e8e8e8;padding:0 20px;overflow-x:auto;position:sticky;top:49px;z-index:9}
+.tab{padding:10px 14px;font-size:13px;cursor:pointer;color:#888;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0}
+.tab.active{color:#7F77DD;border-bottom-color:#7F77DD;font-weight:500}
+.content{padding:16px 20px;max-width:800px;margin:0 auto}
+.stitle{font-size:13px;color:#888;margin-bottom:10px;font-weight:500}
+.card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.badge{font-size:11px;padding:2px 8px;border-radius:8px;display:inline-block;white-space:nowrap}
+.bc{background:#EEEDFE;color:#534AB7}.bd{background:#E1F5EE;color:#0F6E56}
+.bw{background:#FAEEDA;color:#854F0B}.bs{background:#EAF3DE;color:#3B6D11}
+.bhq{background:#E6F1FB;color:#185FA5}.bb2b{background:#FBEAF0;color:#993556}
+.bsh{background:#FAECE7;color:#993C1D}.bfr{background:#F1EFE8;color:#5F5E5A}
+.bpart{background:#EEEDFE;color:#534AB7}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:500px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+.stat{background:#f5f5f3;border-radius:8px;padding:10px 12px}
+.sl{font-size:11px;color:#888;margin-bottom:4px}
+.sv{font-size:20px;font-weight:500}
+.ss{font-size:11px;color:#888}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.frow3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:500px){.frow3{grid-template-columns:1fr 1fr}}
+.field label{font-size:12px;color:#888;display:block;margin-bottom:4px}
+.field select,.field input{width:100%;padding:8px 10px;font-size:13px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#1a1a1a;outline:none}
+.field select:focus,.field input:focus{border-color:#7F77DD}
+.btn{padding:8px 18px;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#1a1a1a;font-weight:500}
+.btn:hover{background:#f5f5f3}
+.btnp{background:#7F77DD;color:#fff;border-color:#534AB7}
+.btnp:hover{background:#6c64cc}
+.btnp:disabled{background:#b0acee;border-color:#b0acee;cursor:not-allowed}
+.btnsm{padding:4px 10px;font-size:12px}
+.btnd{background:#fff0f0;color:#a32d2d;border-color:#f7c1c1}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:#f5f5f3}
+.lcard{background:#fff;border:1px solid #e8e8e8;border-radius:16px;padding:32px 28px;width:100%;max-width:340px;box-shadow:0 2px 16px rgba(0,0,0,0.06)}
+.rsel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.rbtn{padding:10px;border:1px solid #e0e0e0;border-radius:8px;text-align:center;cursor:pointer;font-size:13px;background:#f5f5f3;color:#888}
+.rbtn.on{border-color:#7F77DD;background:#EEEDFE;color:#534AB7;font-weight:500}
+.orow{padding:10px 0;border-bottom:1px solid #f0f0f0}
+.orow:last-child{border-bottom:none}
+.inv-tag{font-size:11px;padding:2px 7px;background:#e6f1fb;color:#185FA5;border-radius:8px;margin:2px 2px 0 0;display:inline-block}
+.prog-bar{height:6px;background:#f0f0f0;border-radius:3px;margin-top:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:#7F77DD}
+.notice{font-size:12px;color:#888;background:#f5f5f3;padding:8px 12px;border-radius:8px;margin-top:8px}
+.notice.ok{background:#EAF3DE;color:#3B6D11}
+.notice.err{background:#FCEBEB;color:#A32D2D}
+.divider{height:1px;background:#f0f0f0;margin:12px 0}
+.dlist{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+@media(max-width:500px){.dlist{grid-template-columns:1fr}}
+.ditem{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:#f5f5f3;border-radius:8px;font-size:13px}
+.ddel{font-size:11px;padding:2px 7px;border-radius:8px;cursor:pointer;border:1px solid #f7c1c1;background:#fff0f0;color:#a32d2d}
+.add-row{display:flex;gap:8px;margin-top:10px}
+.add-row input{flex:1;padding:8px 10px;font-size:13px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#1a1a1a;outline:none}
+.sync-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+.sync-ok{background:#3B6D11}.sync-err{background:#A32D2D}.sync-ing{background:#854F0B}
+</style>
+</head>
+<body>
+
+<div id="loginView">
+<div class="login-wrap">
+  <div class="lcard">
+    <div style="font-size:20px;font-weight:500;margin-bottom:4px">원두 발주 시스템</div>
+    <div style="font-size:13px;color:#888;margin-bottom:24px">더블씨 원두 발주 · 송장 관리</div>
+    <div style="font-size:12px;color:#888;margin-bottom:8px">계정 선택</div>
+    <div class="rsel">
+      <div class="rbtn on" id="r-hq" onclick="selRole('hq')">본사</div>
+      <div class="rbtn" id="r-dc" onclick="selRole('dc')">더블씨</div>
+    </div>
+    <div class="field" style="margin-bottom:12px"><label>아이디</label><input type="text" id="login-id" placeholder="아이디 입력"/></div>
+    <div class="field" style="margin-bottom:20px"><label>비밀번호</label><input type="password" id="login-pw" placeholder="비밀번호 입력"/></div>
+    <button class="btn btnp" style="width:100%;padding:10px" onclick="doLogin()">로그인</button>
+  </div>
+</div>
+</div>
+
+<div id="mainView" style="display:none">
+  <div class="header">
+    <div class="logo"><span>더블씨</span> 원두 발주 시스템</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="sync-indicator" style="font-size:11px;color:#888;display:flex;align-items:center"></div>
+      <div class="ubadge" id="ubadge" onclick="logout()">본사 · 로그아웃</div>
+    </div>
+  </div>
+  <div class="tabs" id="tabBar"></div>
+  <div class="content" id="mc"></div>
+</div>
+
+<script>
+const GAS_URL='https://script.google.com/macros/s/AKfycbw80yxnMGB0gpMHQFhKb4ncgHWSUsSQLY1u1_BQSXT2v9ZLrNp7hW432dTeD94K77O7VA/exec';
+
+let role='hq',selR='hq';
+let b2b=['한국비티비','한국비엔씨','러닝체인','구주제약 공장','구주제약 연구소','구주제약 본사','한국 BMI 청계','한국 BMI 제주','그레이스','김다희 (중앙대병원)','세인이엔지','아이진','엘에스이 (경기 용인)','엘에스이 (경기 이천)','한일시멘트','H 컴퍼니','KINX','주식회사 캐리','카스트크리에이티브','대원제약','아이젠코리아 (예정)','메디카코리아 공장 (예정)','메디카코리아 (예정)'];
+let fran=['그라츠커피랩 건대점','그라츠커피랩 논현점','그라츠커피랩 문정점','그라츠커피랩 반포점','그라츠커피랩 종로점','그라츠커피랩 동탄 코벤트가든 본점','그라츠커피랩 동탄여울공원점','그라츠커피랩 동탄호수공원점','그라츠커피랩 과천중앙점','그라츠커피랩 분당점','그라츠커피랩 수지성북점','그라츠커피랩 수원조원점','그라츠커피랩 판교파미어스몰점','그라츠커피랩 송도트리플스트리트점','베를린 166','늘포레','카페 마루','처인재 (예정)','고령오펠CC'];
+let shortD=[];
+let orders=[],shipments=[];
+
+async function gasGet(type){const r=await fetch(GAS_URL+'?type='+type);return r.json();}
+async function gasPost(data){const r=await fetch(GAS_URL,{method:'POST',body:JSON.stringify(data)});return r.json();}
+
+function setSyncStatus(msg,state){
+  const el=document.getElementById('sync-indicator');
+  if(!el)return;
+  const color=state==='ok'?'#3B6D11':state==='err'?'#A32D2D':'#854F0B';
+  el.innerHTML=`<span class="sync-dot" style="background:${color}"></span><span style="color:${color}">${msg}</span>`;
+}
+
+async function loadFromSheet(){
+  setSyncStatus('불러오는 중...','ing');
+  try{
+    const[oRows,sRows]=await Promise.all([gasGet('orders'),gasGet('shipments')]);
+    if(Array.isArray(oRows)&&oRows.length>1){
+      orders=oRows.slice(1).map(r=>({id:r[0],date:r[1],cat:r[2],dest:r[3],bean:r[4],kg:Number(r[5]),note:r[6]||''}));
+    }
+    if(Array.isArray(sRows)&&sRows.length>1){
+      shipments=sRows.slice(1).map(r=>({id:r[0],date:r[1],cat:r[2],dest:r[3],bean:r[4],kg:Number(r[5]),invoice:r[6],orderId:null}));
+    }
+    setSyncStatus('연동됨 ✓','ok');
+  }catch(e){setSyncStatus('연결 실패','err');}
+}
+
+function shippedKg(oid){return shipments.filter(s=>s.orderId===oid).reduce((a,b)=>a+b.kg,0);}
+function orderStatus(o){const sk=shippedKg(o.id);if(sk===0)return'pending';if(sk>=o.kg)return'done';return'partial';}
+function statusBadge(o){const s=orderStatus(o);if(s==='done')return'<span class="badge bs">출고완료</span>';if(s==='partial')return'<span class="badge bpart">부분출고</span>';return'<span class="badge bw">출고대기</span>';}
+function catBadge(c){if(c==='본사')return`<span class="badge bhq">본사</span>`;if(c==='B2B')return`<span class="badge bb2b">B2B</span>`;if(c==='단기')return`<span class="badge bsh">단기</span>`;if(c==='가맹')return`<span class="badge bfr">가맹</span>`;return c;}
+function beanBadge(b){return b==='카페인'?'<span class="badge bc">카페인</span>':'<span class="badge bd">디카페인</span>';}
+function getDestsForCat(cat){if(cat==='본사')return['동탄본점','사무실','행사'];if(cat==='가맹')return fran;if(cat==='B2B')return b2b;return[];}
+function newId(prefix,arr){return prefix+'-'+(arr.length+1).toString().padStart(3,'0');}
+function today(){return new Date().toISOString().slice(0,10);}
+
+function selRole(r){selR=r;document.getElementById('r-hq').className='rbtn'+(r==='hq'?' on':'');document.getElementById('r-dc').className='rbtn'+(r==='dc'?' on':'');}
+
+async function doLogin(){
+  role=selR;
+  document.getElementById('loginView').style.display='none';
+  document.getElementById('mainView').style.display='block';
+  document.getElementById('ubadge').textContent=(role==='hq'?'본사':'더블씨')+' · 로그아웃';
+  buildTabs();
+  const firstTab=role==='hq'?'order':'invoice';
+  showTab(firstTab);
+  await loadFromSheet();
+  showTab(firstTab);
+}
+function logout(){
+  document.getElementById('loginView').style.display='flex';
+  document.getElementById('mainView').style.display='none';
+  orders=[];shipments=[];
+}
+
+const HQ_TABS=[{id:'order',label:'발주 요청'},{id:'track',label:'출고 현황'},{id:'monthly',label:'월별 집계'},{id:'checkinv',label:'송장 확인'},{id:'dests',label:'납품처 관리'}];
+const DC_TABS=[{id:'invoice',label:'송장 입력'},{id:'track',label:'출고 현황'},{id:'dests',label:'납품처 관리'}];
+
+function buildTabs(){
+  const tabs=role==='hq'?HQ_TABS:DC_TABS;
+  document.getElementById('tabBar').innerHTML=tabs.map(t=>`<div class="tab" id="tab-${t.id}" onclick="showTab('${t.id}')">${t.label}</div>`).join('');
+}
+function showTab(t){
+  const tabs=role==='hq'?HQ_TABS:DC_TABS;
+  tabs.forEach(tb=>{const el=document.getElementById('tab-'+tb.id);if(el)el.className='tab'+(tb.id===t?' active':'');});
+  const c=document.getElementById('mc');
+  if(t==='order')renderOrder(c);
+  else if(t==='track')renderTrack(c);
+  else if(t==='monthly')renderMonthly(c);
+  else if(t==='checkinv')renderCheckInv(c);
+  else if(t==='invoice')renderDCInvoice(c);
+  else if(t==='dests')renderDests(c);
+}
+
+function renderOrder(c){
+  c.innerHTML=`
+  <div class="stitle">발주 요청</div>
+  <div class="card">
+    <div class="frow frow3">
+      <div class="field"><label>카테고리</label>
+        <select id="f-cat" onchange="updDest()"><option>본사</option><option>B2B</option><option>단기</option></select>
+      </div>
+      <div class="field"><label>납품처</label><select id="f-dest"></select></div>
+      <div class="field"><label>원두 구분</label>
+        <select id="f-bean"><option>카페인</option><option>디카페인</option></select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>수량 (kg)</label><input type="number" id="f-kg" placeholder="kg" min="1" step="10"/></div>
+      <div class="field"><label>요청 날짜</label><input type="date" id="f-date" value="${today()}"/></div>
+    </div>
+    <div class="field" id="f-cw" style="display:none;margin-bottom:10px"><label>납품처 직접 입력</label><input type="text" id="f-custom" placeholder="납품처명 입력"/></div>
+    <div class="field" style="margin-bottom:14px"><label>비고</label><input type="text" id="f-note" placeholder="특이사항 (선택)"/></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn" onclick="resetForm()">초기화</button>
+      <button class="btn btnp" id="submit-btn" onclick="submitOrder()">발주 요청 전송 ↗</button>
+    </div>
+    <div class="notice">발주 요청 시 구글 스프레드시트에 자동 기록됩니다</div>
+  </div>
+  <div id="sresult"></div>`;
+  updDest();
+}
+
+function updDest(){
+  const cat=document.getElementById('f-cat').value;
+  const ds=document.getElementById('f-dest');
+  const cw=document.getElementById('f-cw');
+  const dests=getDestsForCat(cat);
+  if(cat==='단기'||dests.length===0){ds.style.display='none';cw.style.display='block';}
+  else{ds.style.display='';cw.style.display='none';ds.innerHTML=dests.map(d=>`<option>${d}</option>`).join('');}
+}
+function resetForm(){['f-kg','f-note','f-custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('sresult').innerHTML='';updDest();}
+
+async function submitOrder(){
+  const kg=document.getElementById('f-kg').value;
+  if(!kg){alert('수량을 입력하세요');return;}
+  const cat=document.getElementById('f-cat').value;
+  const ds=document.getElementById('f-dest');
+  const dest=cat==='단기'||ds.style.display==='none'?(document.getElementById('f-custom').value||'미정'):ds.value;
+  const bean=document.getElementById('f-bean').value;
+  const date=document.getElementById('f-date').value;
+  const note=document.getElementById('f-note').value;
+  const id=newId('ORD',orders);
+  const btn=document.getElementById('submit-btn');
+  btn.textContent='저장 중...';btn.disabled=true;
+  try{
+    const res=await gasPost({action:'addOrder',id,date,cat,dest,bean,kg:parseInt(kg),note,user:'본사'});
+    if(res.ok){
+      orders.push({id,date,cat,dest,bean,kg:parseInt(kg),note});
+      document.getElementById('sresult').innerHTML=`
+        <div class="card" style="border-color:#9FE1CB">
+          <div style="font-size:13px;font-weight:500;color:#0F6E56;margin-bottom:4px">발주 요청 완료 · 구글 시트 기록됨 ✓</div>
+          <div style="font-size:12px;color:#888">${id} · ${date} · ${dest} · ${bean} · ${kg}kg</div>
+        </div>`;
+      setSyncStatus('시트 기록됨 ✓','ok');
+    }else{throw new Error(res.error);}
+  }catch(e){
+    document.getElementById('sresult').innerHTML=`<div class="card" style="border-color:#F09595"><div style="font-size:13px;color:#A32D2D">저장 실패: ${e.message}</div></div>`;
+  }
+  btn.textContent='발주 요청 전송 ↗';btn.disabled=false;
+}
+
+function renderDCInvoice(c){
+  const recent=shipments.slice().reverse().slice(0,15);
+  c.innerHTML=`
+  <div class="stitle">송장 입력</div>
+  <div class="card">
+    <div class="frow frow3" style="margin-bottom:10px">
+      <div class="field"><label>카테고리</label>
+        <select id="dc-cat" onchange="updDCDest()">
+          <option>본사</option><option>가맹</option><option>B2B</option><option>단기</option>
+        </select>
+      </div>
+      <div class="field"><label>납품처</label><select id="dc-dest"></select></div>
+      <div class="field"><label>원두 구분</label>
+        <select id="dc-bean"><option>카페인</option><option>디카페인</option></select>
+      </div>
+    </div>
+    <div class="frow frow3" style="margin-bottom:12px">
+      <div class="field"><label>출고 kg</label><input type="number" id="dc-kg" placeholder="kg" min="1" step="10"/></div>
+      <div class="field"><label>송장번호</label><input type="text" id="dc-inv" placeholder="예) CJ-491023"/></div>
+      <div class="field"><label>출고 날짜</label><input type="date" id="dc-date" value="${today()}"/></div>
+    </div>
+    <div class="field" id="dc-cw" style="display:none;margin-bottom:10px"><label>납품처 직접 입력</label><input type="text" id="dc-custom" placeholder="납품처명 입력"/></div>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn btnp" id="dc-btn" onclick="submitDCInvoice()">출고 등록 ↗</button>
+    </div>
+    <div class="notice">등록 즉시 구글 스프레드시트에 기록됩니다</div>
+  </div>
+  <div id="dc-result"></div>
+  <div class="stitle" style="margin-top:4px">최근 출고 내역</div>
+  <div class="card">
+    ${recent.length===0?'<div style="text-align:center;padding:20px;color:#888;font-size:13px">출고 내역이 없습니다</div>':''}
+    ${recent.map(s=>`
+    <div class="orow">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:500">${s.dest} ${catBadge(s.cat)} ${beanBadge(s.bean)}</div>
+          <div style="font-size:11px;color:#888;margin-top:2px">${s.date} · ${s.kg}kg</div>
+          <span class="inv-tag" style="margin-top:3px">${s.invoice}</span>
+        </div>
+        <span class="badge bs">출고완료</span>
+      </div>
+    </div>`).join('')}
+  </div>`;
+  updDCDest();
+}
+
+function updDCDest(){
+  const cat=document.getElementById('dc-cat').value;
+  const ds=document.getElementById('dc-dest');
+  const cw=document.getElementById('dc-cw');
+  const dests=getDestsForCat(cat);
+  if(cat==='단기'||dests.length===0){ds.style.display='none';cw.style.display='block';}
+  else{ds.style.display='';cw.style.display='none';ds.innerHTML=dests.map(d=>`<option>${d}</option>`).join('');}
+}
+
+async function submitDCInvoice(){
+  const kg=parseInt(document.getElementById('dc-kg').value)||0;
+  const inv=document.getElementById('dc-inv').value.trim();
+  const date=document.getElementById('dc-date').value;
+  const cat=document.getElementById('dc-cat').value;
+  const ds=document.getElementById('dc-dest');
+  const dest=cat==='단기'||ds.style.display==='none'?(document.getElementById('dc-custom').value.trim()||'미정'):ds.value;
+  const bean=document.getElementById('dc-bean').value;
+  if(!kg){alert('출고 kg를 입력하세요');return;}
+  if(!inv){alert('송장번호를 입력하세요');return;}
+  const id=newId('SHP',shipments);
+  const btn=document.getElementById('dc-btn');
+  btn.textContent='저장 중...';btn.disabled=true;
+  try{
+    const res=await gasPost({action:'addShipment',id,date,cat,dest,bean,kg,invoice:inv,user:'더블씨'});
+    if(res.ok){
+      shipments.push({id,orderId:null,date,cat,dest,bean,kg,invoice:inv});
+      document.getElementById('dc-kg').value='';
+      document.getElementById('dc-inv').value='';
+      document.getElementById('dc-result').innerHTML=`
+        <div class="card" style="border-color:#9FE1CB;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:500;color:#0F6E56;margin-bottom:4px">출고 등록 완료 · 구글 시트 기록됨 ✓</div>
+          <div style="font-size:12px;color:#888">${dest} · ${bean} · ${kg}kg · ${inv} · ${date}</div>
+        </div>`;
+      setSyncStatus('시트 기록됨 ✓','ok');
+      renderDCInvoice(document.getElementById('mc'));
+    }else{throw new Error(res.error);}
+  }catch(e){
+    document.getElementById('dc-result').innerHTML=`<div class="card" style="border-color:#F09595"><div style="font-size:13px;color:#A32D2D">저장 실패: ${e.message}</div></div>`;
+  }
+  btn.textContent='출고 등록 ↗';btn.disabled=false;
+}
+
+function renderTrack(c){
+  const show=role==='hq'?orders.filter(o=>o.cat!=='가맹'):orders;
+  const totalShipped=shipments.reduce((a,b)=>a+b.kg,0);
+  c.innerHTML=`
+  <div class="stat-grid">
+    <div class="stat"><div class="sl">전체 발주</div><div class="sv">${orders.length}</div><div class="ss">건</div></div>
+    <div class="stat"><div class="sl">출고 대기</div><div class="sv">${orders.filter(o=>orderStatus(o)==='pending').length}</div><div class="ss">건</div></div>
+    <div class="stat"><div class="sl">부분 출고</div><div class="sv">${orders.filter(o=>orderStatus(o)==='partial').length}</div><div class="ss">건</div></div>
+    <div class="stat"><div class="sl">이번달 출고량</div><div class="sv">${totalShipped}</div><div class="ss">kg</div></div>
+  </div>
+  <div class="card">
+    ${show.length===0?'<div style="text-align:center;padding:24px;color:#888;font-size:13px">발주 내역이 없습니다</div>':''}
+    ${show.map(o=>{
+      const sk=shippedKg(o.id);
+      const pct=Math.min(100,Math.round(sk/o.kg*100));
+      const invs=shipments.filter(s=>s.orderId===o.id);
+      return`<div class="orow">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500">${o.dest} ${catBadge(o.cat)} ${beanBadge(o.bean)}</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">${o.id} · 요청 ${o.date} · 총 ${o.kg}kg</div>
+            ${invs.length>0?`<div style="margin-top:4px">${invs.map(s=>`<span class="inv-tag">${s.invoice} (${s.kg}kg)</span>`).join('')}</div>`:''}
+            <div class="prog-bar" style="margin-top:6px"><div class="prog-fill" style="width:${pct}%"></div></div>
+            <div style="font-size:11px;color:#888;margin-top:2px">${sk}/${o.kg}kg 출고</div>
+          </div>
+          ${statusBadge(o)}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderMonthly(c){
+  const cats=['본사','B2B','단기','가맹'];
+  const month=today().slice(0,7);
+  c.innerHTML=`
+  <div class="stitle">${month} · 카테고리별 원두 소진량</div>
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    ${cats.map(cat=>{
+      const items=shipments.filter(s=>s.cat===cat&&s.date&&s.date.slice(0,7)===month);
+      const total=items.reduce((a,b)=>a+b.kg,0);
+      const cafeKg=items.filter(s=>s.bean==='카페인').reduce((a,b)=>a+b.kg,0);
+      const decafeKg=items.filter(s=>s.bean==='디카페인').reduce((a,b)=>a+b.kg,0);
+      return`<div style="padding:12px;background:#f5f5f3;border-radius:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          ${catBadge(cat)}<span style="font-size:15px;font-weight:500">${total}kg</span>
+        </div>
+        ${cafeKg>0?`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px"><span style="color:#888">카페인</span><span>${cafeKg}kg</span></div>`:''}
+        ${decafeKg>0?`<div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#888">디카페인</span><span>${decafeKg}kg</span></div>`:''}
+        ${total===0?`<div style="font-size:12px;color:#888">출고 내역 없음</div>`:''}
+      </div>`;
+    }).join('')}
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:500">
+      <span>총 출고량</span><span>${shipments.filter(s=>s.date&&s.date.slice(0,7)===month).reduce((a,b)=>a+b.kg,0)}kg</span>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:6px;font-size:12px;color:#888">
+      <span>카페인: ${shipments.filter(s=>s.bean==='카페인'&&s.date&&s.date.slice(0,7)===month).reduce((a,b)=>a+b.kg,0)}kg</span>
+      <span>디카페인: ${shipments.filter(s=>s.bean==='디카페인'&&s.date&&s.date.slice(0,7)===month).reduce((a,b)=>a+b.kg,0)}kg</span>
+    </div>
+  </div>
+  <div class="notice">이번 달 출고 등록된 건 기준으로 집계됩니다</div>`;
+}
+
+function renderCheckInv(c){
+  const recent=shipments.slice().reverse().slice(0,20);
+  c.innerHTML=`
+  <div class="stitle">송장 확인 — 최근 출고 내역</div>
+  <div class="card">
+    ${recent.length===0?'<div style="text-align:center;padding:24px;color:#888;font-size:13px">출고 내역이 없습니다</div>':''}
+    ${recent.map(s=>`
+    <div class="orow">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:500">${s.dest} ${catBadge(s.cat)} ${beanBadge(s.bean)}</div>
+          <div style="font-size:11px;color:#888;margin-top:2px">${s.date} · ${s.kg}kg</div>
+          <span class="inv-tag" style="margin-top:3px">${s.invoice}</span>
+        </div>
+        <span class="badge bs">출고완료</span>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div class="notice">더블씨가 등록한 송장번호가 여기에 표시됩니다</div>`;
+}
+
+function renderDests(c){
+  c.innerHTML=`
+  <div class="stitle">납품처 관리</div>
+  <div class="card" style="margin-bottom:10px">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px">B2B <span style="font-size:12px;color:#888;font-weight:400">${b2b.length}곳</span></div>
+    <div class="dlist">${b2b.map((d,i)=>`<div class="ditem"><span style="font-size:12px">${d}</span><span class="ddel" onclick="delD('b2b',${i},'${d.replace(/'/g,"\\'")}')">삭제</span></div>`).join('')}</div>
+    <div class="add-row"><input type="text" placeholder="납품처 추가" id="add-b2b"/><button class="btn btnp btnsm" onclick="addD('b2b')">+ 추가</button></div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px">가맹 / 카페납품 <span style="font-size:12px;color:#888;font-weight:400">${fran.length}곳</span></div>
+    <div class="dlist">${fran.map((d,i)=>`<div class="ditem"><span style="font-size:12px">${d}</span><span class="ddel" onclick="delD('fran',${i},'${d.replace(/'/g,"\\'")}')">삭제</span></div>`).join('')}</div>
+    <div class="add-row"><input type="text" placeholder="납품처 추가" id="add-fran"/><button class="btn btnp btnsm" onclick="addD('fran')">+ 추가</button></div>
+  </div>
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px">단기 <span style="font-size:12px;color:#888;font-weight:400">${shortD.length}곳</span></div>
+    ${shortD.length===0?'<div style="font-size:13px;color:#888;padding:4px 0 8px">등록된 납품처 없음</div>':''}
+    <div class="dlist">${shortD.map((d,i)=>`<div class="ditem"><span style="font-size:12px">${d}</span><span class="ddel" onclick="delD('short',${i},'${d.replace(/'/g,"\\'")}')">삭제</span></div>`).join('')}</div>
+    <div class="add-row"><input type="text" placeholder="납품처 추가" id="add-short"/><button class="btn btnp btnsm" onclick="addD('short')">+ 추가</button></div>
+  </div>`;
+}
+
+async function addD(type){
+  const el=document.getElementById('add-'+type);
+  const v=el.value.trim();if(!v)return;
+  const cat=type==='b2b'?'B2B':type==='fran'?'가맹':'단기';
+  try{
+    await gasPost({action:'addDest',cat,name:v});
+    if(type==='b2b')b2b.push(v);else if(type==='fran')fran.push(v);else shortD.push(v);
+    el.value='';renderDests(document.getElementById('mc'));
+  }catch(e){alert('저장 실패: '+e.message);}
+}
+async function delD(type,i,name){
+  if(!confirm('삭제할까요?'))return;
+  const cat=type==='b2b'?'B2B':type==='fran'?'가맹':'단기';
+  try{
+    await gasPost({action:'deleteDest',cat,name});
+    if(type==='b2b')b2b.splice(i,1);else if(type==='fran')fran.splice(i,1);else shortD.splice(i,1);
+    renderDests(document.getElementById('mc'));
+  }catch(e){alert('삭제 실패: '+e.message);}
+}
+</script>
+</body>
+</html>
