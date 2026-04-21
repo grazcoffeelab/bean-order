@@ -212,7 +212,7 @@ function renderOrder(c){
   var cancelledOrders=orders.filter(function(o){return o.status==='취소';});
   var html='<div class="stitle">발주 요청</div><div class="card">'
   +'<div class="frow f3">'
-  +'<div class="field"><label>카테고리</label><select id="f-cat" onchange="updDest()"><option>본사</option><option>B2B</option><option>단기</option></select></div>'
+  +'<div class="field"><label>카테고리</label><select id="f-cat" onchange="updDest()"><option>본사</option><option>가맹</option><option>B2B</option><option>단기</option></select></div>'
   +'<div class="field"><label>납품처</label><select id="f-dest"></select></div>'
   +'<div class="field"><label>원두 구분</label><select id="f-bean"><option>카페인</option><option>디카페인</option></select></div>'
   +'</div>'
